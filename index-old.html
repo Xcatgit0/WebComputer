@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computer Simulator UI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- หน้าจอแสดงผล -->
+    <div id="display">
+      <canvas id="canvas" width="600" height="300"></canvas>
+    </div>
+
+    <!-- Panel สถานะ -->
+    <div id="status-panel">
+      <div id="power-button">⏻</div>
+      <div class="status-item">
+        <div class="light" id="power-light"></div>
+        <div class="status-label">Power</div>
+      </div>
+      <div class="status-item">
+        <div class="light" id="disk-light"></div>
+        <div class="status-label">Disk Activity</div>
+      </div>
+    </div>
+
+    <!-- Keyboard -->
+    <div id="keyboard">
+      <!-- Add more rows as needed -->
+       
+    </div>
+
+    <!-- MousePad -->
+    <div id="mousepad">MousePad</div>
+  </div>
+
+  <script>
+    // ปุ่ม Power
+    const powerButton = document.getElementById("power-button");
+    const powerLight = document.getElementById("power-light");
+    const diskLight = document.getElementById("disk-light");
+
+    powerButton.addEventListener("click", () => {
+      powerButton.classList.toggle("active");
+      powerLight.classList.toggle("active");
+    });
+
+    // ไฟ Disk Activity จำลอง
+    setInterval(() => {
+      diskLight.classList.toggle("active");
+    }, 1000);
+  </script>
+</body>
+</html>

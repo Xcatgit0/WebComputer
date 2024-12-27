@@ -1,0 +1,112 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #1e1e1e;
+    color: white;
+  }
+
+  .container {
+    display: grid;
+    grid-template-areas:
+      "display display"
+      "status keyboard"
+      "status mousepad";
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+  }
+
+  /* หน้าจอแสดงผล */
+  #display {
+    grid-area: display;
+    width: 600px;
+    height: 300px;
+    background-color: black;
+    border: 2px solid #00ff00;
+  }
+
+  /* Panel สถานะ */
+  #status-panel {
+    grid-area: status;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .light {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #444;
+    box-shadow: 0 0 5px #000;
+  }
+
+  .light.active {
+    background-color: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+  }
+
+  .status-label {
+    font-size: 14px;
+  }
+
+  #power-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #333;
+    border: 2px solid #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: white;
+  }
+
+  #power-button.active {
+    background-color: #00ff00;
+  }
+
+  /* Keyboard */
+  #keyboard {
+    grid-area: keyboard;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+  }
+
+  .key {
+    width: 100%;
+    height: 50px;
+    background-color: #333;
+    border: 1px solid #555;
+    text-align: center;
+    line-height: 50px;
+    font-size: 16px;
+    color: white;
+  }
+
+  /* MousePad */
+  #mousepad {
+    grid-area: mousepad;
+    width: 200px;
+    height: 150px;
+    background-color: #444;
+    border: 2px solid #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
