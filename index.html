@@ -3,10 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="Main.js" type="module"></script>
     <title>WebComputer</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+        }
+    </style>
 </head>
 <body>
-    
+    <canvas width="1280" height="720" style="border:1px solid #000; margin:0px" id="display" ></canvas>
+    <script>
+        const canvas = document.getElementById("display");
+        const ctx = canvas.getContext("2d");
+        const ip = "ws://127.0.0.1:8080";
+        var socket = new WebSocket(ip);
+        setTimeout(() => {
+            socket.send("init");
+        },1000);
+        socket.addEventListener("message", (event) => { 
+            data = event.data;
+            //alert(data);
+            let obj = JSON.parse(data);
+            var color = "rgba("+obj.r+", "+obj.g+", "+obj.b+", "+obj.a+")";
+            if (obj.rect==1) {
+                ctx.fillStyle = color;
+                ctx.fillRect(obj.x,obj.y,obj.width,obj.height);
+            } else if (obj.dot==1) {
+                ctx.fillStyle = color;
+                ctx.fillRect(obj.x,obj.y,1,1);
+            }
+        });
+        
+    </script>
 </body>
 </html>
