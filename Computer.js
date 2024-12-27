@@ -2,6 +2,8 @@
 
 const fs = require("fs");
 const Disk = require("./Disk");
+const { Gpu } = require("./Gpu");
+
 
 function validateInst(inst) {
     const pattern = /^(\w+)\s+(\w+)\s+(\w+)$/;
