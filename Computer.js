@@ -150,6 +150,12 @@ switch (opcode) {
             let index = parseInt(inst.src1,16) - parseInt("0x00000400",16);
             Disk.write(index,regs.reg2);
             Disk.SaveDisk();
+        } else if ( name2 == "Gpu" ) {
+            if (inst.src2[0] == "r") {
+                Gpu(parseInt(inst.src1, 16), regs.reg2);
+            } else {
+                Gpu(parseInt(inst.src1, 16), parseInt(inst.src2));
+            }
         }
         break;
 
@@ -211,4 +217,4 @@ pc++;
 console.log(registers);
 }
 console.log(codes);
-var interval = setInterval(execute,500);
+var interval = setInterval(execute,125);

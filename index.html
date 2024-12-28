@@ -7,15 +7,16 @@
     <style>
         body {
             background-color: #1e1e1e;
+            margin: 0;
         }
     </style>
 </head>
 <body>
-    <canvas width="1280" height="720" style="border:1px solid #000; margin:0px" id="display" ></canvas>
+    <canvas width="800" height="600" style="border:1px solid #000;  image-rendering: pixelated;" id="display" ></canvas>
     <script>
         const canvas = document.getElementById("display");
         const ctx = canvas.getContext("2d");
-        const ip = "ws://127.0.0.1:8080";
+        const ip = "ws://10.65.80.120:8080";
         var socket = new WebSocket(ip);
         setTimeout(() => {
             socket.send("init");

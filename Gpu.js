@@ -23,8 +23,8 @@ Server.on("connection", (socket) => {
         if (message=="init") {
             clients.push(socket);
             setTimeout(() => {
-            let obj = {x: 0, y: 0, width: 1280, height: 720, rect: 1, dot: 0, r: 255,g: 255, b: 255, a: 255};
-            socket.send(JSON.stringify(obj));
+            //let obj = {x: 0, y: 0, width: 1280, height: 720, rect: 1, dot: 0, r: 30, g: 30, b: 30, a: 255};
+            //socket.send(JSON.stringify(obj));
             },1000);
         }
         console.log(clients.length);
@@ -49,6 +49,7 @@ let cmdBuffer = {
     a: 0
 }
 function Gpu(addr,value) {
+    console.log ( addr, value );
     for (let cmd of GpuMap) {
         if ( cmd.addr == addr ) {
             if (!(cmd.name=="push")) {
