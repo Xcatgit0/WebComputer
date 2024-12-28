@@ -195,7 +195,7 @@ switch (opcode) {
             pc = parseInt(inst.src1) - 1;
         }
         break;
-
+        
     case 'jnz':
         if ( regs.reg2 != 0 ) {
             pc = parseInt(inst.src1) - 1;
