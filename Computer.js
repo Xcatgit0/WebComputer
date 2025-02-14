@@ -2,30 +2,27 @@
 
 const fs = require("fs");
 const Disk = require("./Disk");
-const { Gpu } = require("./Gpu");
+const { Gpu , stopServer } = require("./Gpu");
+const { validateSyntax } = require("./Syntax");
 
 
 function validateInst(inst) {
-    const pattern = /^(\w+)\s+(\w+)\s+(\w+)$/;
-    // ตรวจสอบข้อความ
-    const match = inst.match(pattern);
-
-    if (match) {
-        // หากข้อความตรงกับรูปแบบ ดึงข้อมูล <opcode>, <src1>, <src2>
-        const opcode = match[1];
-        const src1 = match[2];
-        const src2 = match[3];
-
-        return {
-            opcode: opcode,
-            src1: src1,
-            src2: src2
-        };
-    } else {
-        console.error("Invalid Syntax: "+ inst);
+    const words = inst.trim().split(/\s+/);
+    if (words[1] && words[1].startsWith(";")) {
+        words[1] = "";
+        words[2] = "";
+    } else if (words[2] && words[2].startsWith(";")) {
+        words[2] = "";
     }
+    return {
+        opcode: words[0],
+        src1: words[1],
+        src2: words[2]
+     };
+
 }
 function srcToReg(src) {
+    if (!src) return;
     const reg = parseInt(src.slice(1));
     return reg;
 }
@@ -63,20 +60,38 @@ function sreg( regs , src1 , src2 ) {
     }
 }
 function setFlags ( number ) {
-     if ( number == 0 ) {
+    if ( number == 0 ) {
             flags.zf = 1;
             flags.sf = 0;
-        } else {
-            flags.zf = 0;
-            if ( number < 0 ) {
-                flags.sf = 1;
-            }
+    } else {
+        flags.zf = 0;
+        if ( number < 0 ) {
+            flags.sf = 1;
+        }
     }
 }
 var regs = {};
 console.log(registers);
+var labels = [];
+var called = [];
+function jumpTolabel(name) {
+    called.push({name: name, pc: pc});
+    for (let label of labels) {
+        if (label.string == name) {
+            pc = label.pc;
+        }
+    }
+}
 function execute() {
-const inst = validateInst(codes[pc]);
+const {type, string} = validateSyntax(codes[pc]);
+let inst = {};
+if ( type=="cmd" ) {
+    inst = validateInst(codes[pc]);
+} else if ( type=="label" ) {
+    labels.push({string: string, pc: pc});
+} else {
+    return;
+}
 if (inst==null) {
     throw new Error("Program Ended.");
 }
@@ -204,7 +219,9 @@ switch (opcode) {
     case 'hlt':
         if ( interval ) {
             clearInterval(interval);
+            stopServer();
         } else {
+            stopServer();
             throw new Error("Error Cant Stop an Interval Id");
         }
         break;
@@ -217,4 +234,4 @@ pc++;
 console.log(registers);
 }
 console.log(codes);
-var interval = setInterval(execute,125);
+var interval = setInterval(execute,500);

@@ -70,5 +70,13 @@ function Gpu(addr,value) {
         }
     }
 }
+function stopServer() {
+    console.log("Stopping a Server...");
+    clients.forEach((socket) => {
+        socket.close();
+        console.log("Stopping Sockets State: "+socket.readyState);
+    });
+    Server.close();
+}
 
-module.exports = { Gpu };
+module.exports = { Gpu , stopServer };
