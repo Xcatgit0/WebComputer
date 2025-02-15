@@ -4,7 +4,7 @@ const fs = require("fs");
 const Disk = require("./Disk");
 const { Gpu , stopServer } = require("./Gpu");
 const { validateSyntax } = require("./Syntax");
-
+const { update } = require("./tui");
 
 function validateInst(inst) {
     const words = inst.trim().split(/\s+/);
@@ -82,6 +82,13 @@ function jumpTolabel(name) {
         }
     }
 }
+function jump(src) {
+    if (parseInt(src)==NaN) {
+        jumpTolabel(src);
+    } else {
+        pc = parseInt(src)-1;
+    }
+}
 function execute() {
 const {type, string} = validateSyntax(codes[pc]);
 let inst = {};
@@ -96,11 +103,11 @@ if (inst==null) {
     throw new Error("Program Ended.");
 }
 Disk.loadDisk();
-console.log (codes[pc]);
 const opcode = inst.opcode;
 const src1 = inst.src1;
 const src2 = inst.src2;
 regs = reg(src1,src2);
+update(pc,flags,registers,Memory,labels,string);
 switch (opcode) {
     case 'add':
         regs.reg1 += regs.reg2;
@@ -190,36 +197,41 @@ switch (opcode) {
         break;
 
     case 'jmp': // กระโดดไปยังตำแหน่งคำสั่ง
-        pc =  parseInt(inst.src1) - 1; // ส่งตำแหน่ง (index) ที่ต้องการกระโดดไป
+        jump(inst.src1);
         break;
 
     case 'je':
         if ( flags.zf == 1 ) {
-            pc = parseInt(inst.src1) - 1;
+            jump(inst.src1);
         }
         break;
 
     case 'jez':
         if ( regs.reg2 == 0 ) {
-            pc = parseInt(inst.src1) -1;
+            jump(inst.src1);
         }
         break;
 
     case 'jgz':
         if ( regs.reg2 > 0 ) {
-            pc = parseInt(inst.src1) - 1;
+            jump(inst.src1);
         }
         break;
         
     case 'jnz':
         if ( regs.reg2 != 0 ) {
-            pc = parseInt(inst.src1) - 1;
+            jump(inst.src1);
         }
+        break;
+    case 'end':
+        tpc = called[called.length-1].pc;
+        pc = tpc;
         break;
     case 'hlt':
         if ( interval ) {
             clearInterval(interval);
             stopServer();
+            process.exit(0);
         } else {
             stopServer();
             throw new Error("Error Cant Stop an Interval Id");
@@ -231,7 +243,8 @@ switch (opcode) {
         break;
 }
 pc++;
-console.log(registers);
+update(pc,flags,registers,Memory,labels,string);
+//console.log(registers);
 }
 console.log(codes);
 var interval = setInterval(execute,500);
