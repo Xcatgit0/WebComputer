@@ -1,9 +1,9 @@
 ldi r2 20
-jmp 7
+jmp loop
+jmp 1
 loop:
 adi r1 1
 cmp r2 r1
 je 8
 end
-jmp loop
 hlt

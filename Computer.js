@@ -73,19 +73,30 @@ function setFlags ( number ) {
 var regs = {};
 console.log(registers);
 var labels = [];
+for (let i=0;i<codes.length;i++){
+const {type,string} = validateSyntax(codes[i]);
+console.log(string,type);
+if (type=="label") {
+    labels.push({string: string, pc: i});
+}
+};
+console.log(labels);
 var called = [];
 function jumpTolabel(name) {
+//console.log(name,labels);
     called.push({name: name, pc: pc});
     for (let label of labels) {
         if (label.string == name) {
+            ////console.log(label);
             pc = label.pc;
         }
     }
 }
 function jump(src) {
-    if (parseInt(src)==NaN) {
+    //console.log(src);
+    if (/^[A-Za-z]+$/.test(src)) {
         jumpTolabel(src);
-    } else {
+    } else if (/^[0-9]+$/.test(src)) {
         pc = parseInt(src)-1;
     }
 }
@@ -95,19 +106,25 @@ let inst = {};
 if ( type=="cmd" ) {
     inst = validateInst(codes[pc]);
 } else if ( type=="label" ) {
-    labels.push({string: string, pc: pc});
+
+
+   //  console.log("label",string,pc);
 } else {
     return;
 }
 if (inst==null) {
     throw new Error("Program Ended.");
 }
+if (!inst.opcode) {
+    pc++
+    return;
+}
 Disk.loadDisk();
 const opcode = inst.opcode;
 const src1 = inst.src1;
 const src2 = inst.src2;
 regs = reg(src1,src2);
-update(pc,flags,registers,Memory,labels,string);
+update(pc,flags,registers,Memory,labels,string,called);
 switch (opcode) {
     case 'add':
         regs.reg1 += regs.reg2;
@@ -224,7 +241,8 @@ switch (opcode) {
         }
         break;
     case 'end':
-        tpc = called[called.length-1].pc;
+        const tpc = called[called.length -1].pc;
+        called.pop();
         pc = tpc;
         break;
     case 'hlt':
@@ -243,7 +261,7 @@ switch (opcode) {
         break;
 }
 pc++;
-update(pc,flags,registers,Memory,labels,string);
+update(pc,flags,registers,Memory,labels,string,called);
 //console.log(registers);
 }
 console.log(codes);

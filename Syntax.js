@@ -1,5 +1,5 @@
 function validateSyntax( string ) {
-    if (!string.trim()=="" || !string.trim().endsWith(":")) {
+    if (!string.trim().endsWith(":")&& !string.trim().startsWith(";")) {
         return{type: "cmd", string: string};
     }
     let trimed = string.trim();
@@ -7,7 +7,7 @@ function validateSyntax( string ) {
         return {type: "skip"};
     }
     if (trimed.endsWith(":")) {
-        let Label = string.slice(0,-1);
+        let Label = string.slice(0,-1).trim();
         return {type: "label", string: Label};
     }
 
