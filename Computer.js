@@ -4,7 +4,7 @@ const fs = require("fs");
 const Disk = require("./Disk");
 const { Gpu , stopServer } = require("./Gpu");
 const { validateSyntax } = require("./Syntax");
-const { update } = require("./tui");
+const { update,stop } = require("./tui");
 
 function validateInst(inst) {
     const words = inst.trim().split(/\s+/);
@@ -84,10 +84,14 @@ console.log(labels);
 var called = [];
 function jumpTolabel(name) {
 //console.log(name,labels);
-    called.push({name: name, pc: pc});
     for (let label of labels) {
         if (label.string == name) {
             ////console.log(label);
+            if (called.length!=0) {
+                if (called[called.length-1].name!=name) {called.push({name: name, pc: pc})}
+            } else if (called.length===0) {
+                called.push({name: name, pc: pc});
+            }
             pc = label.pc;
         }
     }
@@ -110,10 +114,8 @@ if ( type=="cmd" ) {
 
    //  console.log("label",string,pc);
 } else {
+    pc++;
     return;
-}
-if (inst==null) {
-    throw new Error("Program Ended.");
 }
 if (!inst.opcode) {
     pc++
@@ -124,7 +126,7 @@ const opcode = inst.opcode;
 const src1 = inst.src1;
 const src2 = inst.src2;
 regs = reg(src1,src2);
-update(pc,flags,registers,Memory,labels,string,called);
+update(pc,flags,registers,Memory,labels,string,called,codes);
 switch (opcode) {
     case 'add':
         regs.reg1 += regs.reg2;
@@ -167,33 +169,37 @@ switch (opcode) {
         break;
 
     case 'in':
-        const name1 = addrToDev(parseInt(inst.src1, 16));
+        const name1 = addrToDev(parseInt(inst.src1));
         if ( name1=="Ram") {
-            const v = parseInt(inst.src1, 16);
+            const v = parseInt(inst.src1);
             regs.reg2 = Memory[v];
             sreg(regs, undefined, srcToReg(inst.src2));
         } else if ( name1 == "Disk") {
-            let index = parseInt(inst.src1,16) - parseInt("0x00000400",16);
+            let index = parseInt(regs.reg1 || inst.src1) - parseInt("0x00000400");
             regs.reg2 = Disk.read(index);
             sreg(regs, undefined, srcToReg(inst.src2));
         }
         break;
 
     case 'out':
-        const name2 = addrToDev(parseInt(inst.src1, 16));
+        const name2 = addrToDev(parseInt(inst.src1));
         if ( name2=="Ram") {
-            const v = parseInt(inst.src1, 16);
-            Memory[v] = regs.reg2;
+            if (!inst.src1[0] == "r") {
+                const v = parseInt(inst.src1);
+                Memory[v] = regs.reg2 || parseInt(inst.src1);
+            } else {
+                Memory[regs.reg1] = regs.reg2 || parseInt(inst.src1); 
+            }
             sreg(regs, undefined, srcToReg(inst.src2));
         } else if ( name2 == "Disk") {
-            let index = parseInt(inst.src1,16) - parseInt("0x00000400",16);
+            let index = parseInt(inst.src1) - parseInt("0x00000400");
             Disk.write(index,regs.reg2);
             Disk.SaveDisk();
         } else if ( name2 == "Gpu" ) {
             if (inst.src2[0] == "r") {
-                Gpu(parseInt(inst.src1, 16), regs.reg2);
+                Gpu(parseInt(inst.src1), regs.reg2);
             } else {
-                Gpu(parseInt(inst.src1, 16), parseInt(inst.src2));
+                Gpu(parseInt(inst.src1), parseInt(inst.src2));
             }
         }
         break;
@@ -247,6 +253,7 @@ switch (opcode) {
         break;
     case 'hlt':
         if ( interval ) {
+            stop();
             clearInterval(interval);
             stopServer();
             process.exit(0);
@@ -261,8 +268,7 @@ switch (opcode) {
         break;
 }
 pc++;
-update(pc,flags,registers,Memory,labels,string,called);
-//console.log(registers);
+update(pc,flags,registers,Memory,labels,string,called,codes);
 }
 console.log(codes);
-var interval = setInterval(execute,500);
+var interval = setInterval(()=>{execute()},250);

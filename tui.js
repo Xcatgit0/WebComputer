@@ -2,7 +2,8 @@ const bless = require("blessed");
 
 const screen = bless.screen({
     smartCSR: true,
-    title: "VM Monitor"
+    title: "VM Monitor",
+    mouse: false
 });
 const stat = bless.box({
     top: '0%',
@@ -35,22 +36,29 @@ const VM = bless.box({
     style: { border: {fg: 'white'}}
 });
 register.content = '';
-function update(pc,flags,registers,memorys,labels,cmd,called) {
+function update(pc,flags,registers,memorys,labels,cmd,called,codes) {
     register.content = '';
-    stat.content = 'PC: '+pc+'\n'+'flags: { zf: '+flags.zf+' }\n'+'run: '+cmd+'\n';
+    stat.content = 'PC: '+pc+'\n'+'flags: { zf: '+flags.zf+' }\n'+'run: '+codes[pc]+'\n';
     for (let i=0;i<registers.length;i++) {
         register.content += 'r'+i+': '+registers[i]+ ' ';
     }
     VM.content= '';
     VM.content += 'Labels: '+JSON.stringify(labels);
     VM.content += '\nCalled: '+JSON.stringify(called);
+    VM.content += "\nCodes: \n";
+    VM.content += '  '+codes[pc-2]+'\n';
+    VM.content += '  '+codes[pc-1]+'\n';
+    VM.content += '>>'+codes[pc]+'\n';
+    VM.content += '  '+codes[pc+1]+'\n';
+    VM.content += '  '+codes[pc+2]+'\n';
     screen.render();
 }
-screen.key(['escape','^[0A','^[0B'], function(ch,key) {
-    return;
-});
+
 screen.append(stat);
 screen.append(register);
 screen.append(VM);
 screen.render();
-module.exports = { update };
+function stop() {
+    screen.destroy();
+}
+module.exports = { update,stop };
