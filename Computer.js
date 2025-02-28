@@ -192,7 +192,7 @@ switch (opcode) {
             }
             sreg(regs, undefined, srcToReg(inst.src2));
         } else if ( name2 == "Disk") {
-            let index = regs.reg1 || parseInt(inst.src1) - parseInt("0x00000400");
+            let index = (regs.reg1 || parseInt(inst.src1)) - parseInt("0x00000400");
             Disk.write(index,regs.reg2);
             Disk.SaveDisk();
         } else if ( name2 == "Gpu" ) {

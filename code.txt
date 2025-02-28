@@ -4,8 +4,9 @@ jmp loop
 hlt
 loop:
 adi r1 1
+adi r3 1
 out r3 r1
 cmp r2 r1
-je 10
+je 11
 jmp loop
 end
