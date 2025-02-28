@@ -1,9 +1,11 @@
 ldi r2 30
+ldi r3 0x400
 jmp loop
 hlt
 loop:
 adi r1 1
+out r3 r1
 cmp r2 r1
-je 8
+je 10
 jmp loop
 end

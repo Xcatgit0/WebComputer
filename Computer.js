@@ -182,7 +182,7 @@ switch (opcode) {
         break;
 
     case 'out':
-        const name2 = addrToDev(parseInt(inst.src1));
+        const name2 = addrToDev(parseInt(regs.reg1 || inst.src1));
         if ( name2=="Ram") {
             if (!inst.src1[0] == "r") {
                 const v = parseInt(inst.src1);
@@ -192,7 +192,7 @@ switch (opcode) {
             }
             sreg(regs, undefined, srcToReg(inst.src2));
         } else if ( name2 == "Disk") {
-            let index = parseInt(inst.src1) - parseInt("0x00000400");
+            let index = regs.reg1 || parseInt(inst.src1) - parseInt("0x00000400");
             Disk.write(index,regs.reg2);
             Disk.SaveDisk();
         } else if ( name2 == "Gpu" ) {
