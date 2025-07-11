@@ -5,7 +5,8 @@ const Disk = require("./Disk");
 const { Gpu, stopServer } = require("./Gpu");
 const { validateSyntax } = require("./Syntax");
 const { update, stop, OIPS } = require("./tui");
-
+const stat = require("./Stat.js");
+const { argv } = require("process");
 function validateInst(inst) {
     const words = inst.trim().split(/\s+/);
     if (words[1] && words[1].startsWith(";")) {
@@ -23,13 +24,13 @@ function validateInst(inst) {
 }
 function srcToReg(src) {
     if (!src) return;
-    const reg = parseInt(src.slice(1));
+    const reg = parseInt(src.slice(1), 0);
     return reg;
 }
 const devs = [
     { name: "Ram", start: 0x00000000, end: 0x000003FF },
-    { name: "Disk", start: 0x00000400, end: 0x00001400 },
-    { name: "Gpu", start: 0x00001500, end: 0x000015FF }
+    { name: "Gpu", start: 0x00000400, end: 0x00001400 },
+    { name: "Disk", start: 0x00001500, end: 0x000094FF }
 ]
 function addrToDev(addr) {
     for (let device of devs) {
@@ -38,7 +39,8 @@ function addrToDev(addr) {
         }
     }
 }
-const code = fs.readFileSync('ncode', 'utf8');
+if (!(process, argv[2])) { throw new Error('No Input file') }
+const code = fs.readFileSync(process.argv[2], 'utf8');
 const codes = code.split('\n');
 var Memory = new Array(1024).fill(0);
 var registers = new Array(16).fill(0);
@@ -83,7 +85,7 @@ for (let i = 0; i < codes.length; i++) {
 console.log(labels);
 var called = [];
 function jumpTolabel(name) {
-    //console.log(name,labels);
+    ////console.log(name,labels);
     for (let label of labels) {
         if (label.string == name) {
             ////console.log(label);
@@ -97,11 +99,11 @@ function jumpTolabel(name) {
     }
 }
 function jump(src) {
-    //console.log(src);
+    ////console.log(src);
     if (/^[A-Za-z]+$/.test(src)) {
         jumpTolabel(src);
     } else if (/^[0-9]+$/.test(src)) {
-        pc = parseInt(src) - 1;
+        pc = parseInt(src, 0) - 1;
     }
 }
 
@@ -115,7 +117,7 @@ function execute() {
     } else if (type == "label") {
 
 
-        //  console.log("label",string,pc);
+        ////  console.log("label",string,pc);
     } else {
         pc++;
         return;
@@ -129,7 +131,8 @@ function execute() {
     const src1 = inst.src1;
     const src2 = inst.src2;
     regs = reg(src1, src2);
-    update(pc, flags, registers, Memory, labels, string, called, codes);
+    //update(pc, flags, registers, Memory, labels, string, called, codes);
+    const timer = stat.startTimer(opcode);
     switch (opcode) {
         case 'add':
             regs.reg1 += regs.reg2;
@@ -149,18 +152,18 @@ function execute() {
             break;
 
         case 'ldi':
-            regs.reg1 = parseInt(inst.src2);
+            regs.reg1 = parseInt(inst.src2, 0);
             sreg(regs, srcToReg(inst.src1));
             break;
 
         case 'adi':
-            regs.reg1 += parseInt(inst.src2);
+            regs.reg1 += parseInt(inst.src2, 0);
             sreg(regs, srcToReg(inst.src1));
             setFlags(regs.reg1);
             break;
 
         case 'sdi':
-            regs.reg1 -= parseInt(inst.src2);
+            regs.reg1 -= parseInt(inst.src2, 0);
             sreg(regs, srcToReg(inst.src1));
             setFlags(regs.reg1);
             break;
@@ -172,39 +175,39 @@ function execute() {
             break;
 
         case 'in':
-            const name1 = addrToDev(regs.reg1 || parseInt(inst.src1));
+            const name1 = addrToDev(regs.reg1 || parseInt(inst.src1, 0));
             if (name1 == "Ram") {
-                const v = parseInt(inst.src1);
+                const v = parseInt(inst.src1, 0);
                 regs.reg2 = Memory[v];
                 sreg(regs, undefined, srcToReg(inst.src2));
             } else if (name1 == "Disk") {
                 //Disk.loadDisk();
-                let index = (regs.reg1 || parseInt(inst.src1)) - parseInt("0x00000400");
+                let index = (regs.reg1 || parseInt(inst.src1, 0)) - parseInt("0x00001500", 0);
                 regs.reg2 = Disk.read(index);
                 sreg(regs, undefined, srcToReg(inst.src2));
             }
             break;
 
         case 'out':
-            const name2 = addrToDev(parseInt(regs.reg1 || inst.src1));
+            const name2 = addrToDev(parseInt(regs.reg1 || inst.src1, 0));
             if (name2 == "Ram") {
                 if (!inst.src1[0] == "r") {
-                    const v = parseInt(inst.src1);
-                    Memory[v] = regs.reg2 || parseInt(inst.src1);
+                    const v = parseInt(inst.src1, 0);
+                    Memory[v] = regs.reg2 || parseInt(inst.src1, 0);
                 } else {
-                    Memory[regs.reg1] = regs.reg2 || parseInt(inst.src1);
+                    Memory[regs.reg1] = regs.reg2 || parseInt(inst.src1, 0);
                 }
                 sreg(regs, undefined, srcToReg(inst.src2));
             } else if (name2 == "Disk") {
-                let index = (regs.reg1 || parseInt(inst.src1)) - parseInt("0x00000400");
+                let index = (regs.reg1 || parseInt(inst.src1, 0)) - parseInt("0x00001500", 0);
                 Disk.write(index, regs.reg2);
                 Disk.SaveDisk();
                 Disk.LoadDisk()
             } else if (name2 == "Gpu") {
                 if (inst.src2[0] == "r") {
-                    Gpu(parseInt(inst.src1), regs.reg2);
+                    Gpu(parseInt(inst.src1, 0), regs.reg2);
                 } else {
-                    Gpu(parseInt(inst.src1), parseInt(inst.src2));
+                    Gpu(parseInt(inst.src1, 0), parseInt(inst.src2, 0));
                 }
             }
             break;
@@ -217,7 +220,7 @@ function execute() {
 
         case 'div': // คำสั่งหาร
             if (regs.reg2 === 0) {
-                throw new Error("Division by zero!");
+                //throw new Error("Division by zero!");
             }
             regs.reg1 = Math.floor(regs.reg1 / regs.reg2); // หารเอาค่าเต็ม
             sreg(regs, srcToReg(inst.src1), srcToReg(inst.src2));
@@ -261,6 +264,8 @@ function execute() {
                 stop();
                 clearInterval(interval);
                 stopServer();
+                timer();
+                stat.printStats();
                 process.exit(0);
             } else {
                 stopServer();
@@ -272,14 +277,16 @@ function execute() {
             console.error("unsupport instruction: " + opcode);
             break;
     }
+    timer();
     pc++;
     update(pc, flags, registers, Memory, labels, string, called, codes);
+
     InsExecuted++;
 }
 console.log(codes);
 var interval;
 const loop = () => {
-    interval = setInterval(() => { execute() }, 10);
+    interval = setInterval(() => { execute() }, 0.44);
 }
 Disk.loadDisk();
 setTimeout(loop, 5000);

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +12,9 @@
         }
     </style>
 </head>
+
 <body>
-    <canvas width="800" height="600" style="border:1px solid #000;  image-rendering: pixelated;" id="display" ></canvas>
+    <canvas width="800" height="600" style="border:1px solid #000;  image-rendering: pixelated;" id="display"></canvas>
     <script>
         const canvas = document.getElementById("display");
         const ctx = canvas.getContext("2d");
@@ -20,21 +22,22 @@
         var socket = new WebSocket(ip);
         setTimeout(() => {
             socket.send("init");
-        },1000);
-        socket.addEventListener("message", (event) => { 
+        }, 1000);
+        socket.addEventListener("message", (event) => {
             data = event.data;
             //alert(data);
             let obj = JSON.parse(data);
-            var color = "rgba("+obj.r+", "+obj.g+", "+obj.b+", "+obj.a+")";
-            if (obj.rect==1) {
+            var color = "rgba(" + obj.r + ", " + obj.g + ", " + obj.b + ", " + obj.a + ")";
+            if (obj.rect == 1) {
                 ctx.fillStyle = color;
-                ctx.fillRect(obj.x,obj.y,obj.width,obj.height);
-            } else if (obj.dot==1) {
+                ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            } else if (obj.dot == 1) {
                 ctx.fillStyle = color;
-                ctx.fillRect(obj.x,obj.y,1,1);
+                ctx.fillRect(obj.x, obj.y, 1, 1);
             }
         });
-        
+
     </script>
 </body>
+
 </html>

@@ -1,17 +1,17 @@
 const WebSocket = require("ws");
 
 const GpuMap = [
-    { addr: 0x1500, name: "x" },
-    { addr: 0x1501, name: "y" },
-    { addr: 0x1502, name: "width" },
-    { addr: 0x1503, name: "height" },
-    { addr: 0x1504, name: "rect" },
-    { addr: 0x1505, name: "dot" },
-    { addr: 0x1506, name: "r" },
-    { addr: 0x1507, name: "g" },
-    { addr: 0x1508, name: "b" },
-    { addr: 0x1509, name: "a" },
-    { addr: 0x1510, name: "push" }
+    { addr: 0x400, name: "x" },
+    { addr: 0x401, name: "y" },
+    { addr: 0x402, name: "width" },
+    { addr: 0x403, name: "height" },
+    { addr: 0x404, name: "rect" },
+    { addr: 0x405, name: "dot" },
+    { addr: 0x406, name: "r" },
+    { addr: 0x407, name: "g" },
+    { addr: 0x408, name: "b" },
+    { addr: 0x409, name: "a" },
+    { addr: 0x410, name: "push" }
 ]
 let clients = [];
 var Server = new WebSocket.Server({ port: 8080 });
@@ -46,6 +46,19 @@ let cmdBuffer = {
     b: 0,
     a: 0
 }
+let ppending = false;
+function Push() {
+    clients.forEach((socket) => {
+        socket.send(JSON.stringify(cmdBuffer));
+    });
+    cmdBuffer.rect = 0;
+    cmdBuffer.dot = 0;
+    cmdBuffer.r = 0;
+    cmdBuffer.g = 0;
+    cmdBuffer.b = 0;
+    cmdBuffer.a = 0;
+    ppending = false;
+}
 function Gpu(addr, value) {
     for (let cmd of GpuMap) {
         if (cmd.addr == addr) {
@@ -53,15 +66,10 @@ function Gpu(addr, value) {
                 cmdBuffer[cmd.name] = value;
             } else {
                 if (cmd.name == "push") {
-                    clients.forEach((socket) => {
-                        socket.send(JSON.stringify(cmdBuffer));
-                    });
-                    cmdBuffer.rect = 0;
-                    cmdBuffer.dot = 0;
-                    cmdBuffer.r = 0;
-                    cmdBuffer.g = 0;
-                    cmdBuffer.b = 0;
-                    cmdBuffer.a = 0;
+                    if (!ppending) {
+                        ppending = true;
+                        setImmediate(Push);
+                    }
                 }
             }
         }

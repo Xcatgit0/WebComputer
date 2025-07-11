@@ -36,8 +36,20 @@ const VM = bless.box({
     style: { border: { fg: 'white' } }
 });
 register.content = '';
-let IPS = 0
-function update(pc, flags, registers, memorys, labels, cmd, called, codes) {
+let IPS = 0;
+let pc = 0;
+let flags = {};
+let registers = [];
+let memorys = [];
+let labels = {};
+let cmd = "";
+let called = {};
+let codes = "";
+function update(_pc, _flags, _registers, _memorys, _labels, _cmd, _called, _codes) {
+    pc = _pc; flags = _flags; registers = _registers; memorys = _memorys; labels = _labels; cmd = _cmd; called = _called; codes = _codes;
+    setImmediate(updatescreen);
+}
+function updatescreen() {
     register.content = '';
     stat.content = 'PC: ' + pc + '\n' + 'flags: { zf: ' + flags.zf + ' }\n' + 'run: ' + codes[pc] + '\n' + 'IPS: ' + IPS + "\n";
     for (let i = 0; i < registers.length; i++) {
@@ -54,7 +66,6 @@ function update(pc, flags, registers, memorys, labels, cmd, called, codes) {
     VM.content += '  ' + codes[pc + 2] + '\n';
     screen.render();
 }
-
 screen.append(stat);
 screen.append(register);
 screen.append(VM);
