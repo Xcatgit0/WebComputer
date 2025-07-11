@@ -16,23 +16,21 @@ const GpuMap = [
 let clients = [];
 var Server = new WebSocket.Server({ port: 8080 });
 Server.on("connection", (socket) => {
-    console.log("Client Connected");
-    socket.on("message",(msg) => {
+    socket.on("message", (msg) => {
         let message = msg.toString("utf-8");
         console.log(message);
-        if (message=="init") {
+        if (message == "init") {
             clients.push(socket);
             setTimeout(() => {
-            //let obj = {x: 0, y: 0, width: 1280, height: 720, rect: 1, dot: 0, r: 30, g: 30, b: 30, a: 255};
-            //socket.send(JSON.stringify(obj));
-            },1000);
+                //let obj = {x: 0, y: 0, width: 1280, height: 720, rect: 1, dot: 0, r: 30, g: 30, b: 30, a: 255};
+                //socket.send(JSON.stringify(obj));
+            }, 1000);
         }
-        console.log(clients.length);
     });
-    socket.on("close",() => {
+    socket.on("close", () => {
         console.log("Client Disconnected");
     });
-    socket.on("error",(error) => {
+    socket.on("error", (error) => {
         console.log(error);
     });
 });
@@ -48,14 +46,13 @@ let cmdBuffer = {
     b: 0,
     a: 0
 }
-function Gpu(addr,value) {
-    console.log ( addr, value );
+function Gpu(addr, value) {
     for (let cmd of GpuMap) {
-        if ( cmd.addr == addr ) {
-            if (!(cmd.name=="push")) {
+        if (cmd.addr == addr) {
+            if (!(cmd.name == "push")) {
                 cmdBuffer[cmd.name] = value;
             } else {
-                if (cmd.name=="push") {
+                if (cmd.name == "push") {
                     clients.forEach((socket) => {
                         socket.send(JSON.stringify(cmdBuffer));
                     });
@@ -74,9 +71,9 @@ function stopServer() {
     console.log("Stopping a Server...");
     clients.forEach((socket) => {
         socket.close();
-        console.log("Stopping Sockets State: "+socket.readyState);
+        console.log("Stopping Sockets State: " + socket.readyState);
     });
     Server.close();
 }
 
-module.exports = { Gpu , stopServer };
+module.exports = { Gpu, stopServer };

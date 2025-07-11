@@ -1,0 +1,9 @@
+ldi r4 1000
+ldi r1 1
+jmp loop
+hlt
+loop:
+sdi r4 1
+jez 8 r4
+jmp loop
+end

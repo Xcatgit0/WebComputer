@@ -16,7 +16,7 @@
     <script>
         const canvas = document.getElementById("display");
         const ctx = canvas.getContext("2d");
-        const ip = "ws://127.0.0.1:8080";
+        const ip = "ws://192.168.1.6:8080";
         var socket = new WebSocket(ip);
         setTimeout(() => {
             socket.send("init");
