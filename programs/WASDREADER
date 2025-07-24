@@ -1,0 +1,22 @@
+ldi r2 122
+call loop
+hlt
+loop:
+jmp waitForKey
+lloop:
+cmp r1 r2
+tty 0 r1
+tty 0 45
+tty 1 r1
+out 0x3F1 1
+je lend
+jmp loop
+lend:
+end
+waitForKey:
+in 0x3F0 r1
+cmp r1 0
+je back
+jmp lloop
+back:
+jmp waitForKey

@@ -1,3 +1,10 @@
+define x 0x400
+define y 0x401
+define r 0x406
+define g 0x407
+define b 0x408
+define a 0x409
+Rdefine
 ldi r1 0x1500
 ldi r2 0x1501
 ldi r3 0x1502
@@ -7,19 +14,19 @@ ldi r8 0
 ldi r15 2
 out 0x402 4
 out 0x403 4
-jmp loop
+call loop
 hlt
 loop:
 in r1 r11
 in r2 r12
 in r3 r13
 in r4 r14
-out 0x400 r7
-out 0x401 r8
-out 0x406 r11
-out 0x407 r12
-out 0x408 r13
-out 0x409 255
+out x r7
+out y r8
+out r r11
+out g r12
+out b r13
+out a 255
 out 0x404 1
 out 0x410 1
 adi r1 4
@@ -30,10 +37,11 @@ adi r7 4
 cmp r15 r14
 je row
 cmp r14 r0
-je 34
+je lend
 jmp loop
+lend:
 end
 row:
 adi r8 4
 ldi r7 0
-end
+jmp loop

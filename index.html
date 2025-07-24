@@ -7,35 +7,220 @@
     <title>WebComputer</title>
     <style>
         body {
-            background-color: #1e1e1e;
+            background-color: #ffffff;
             margin: 0;
+        }
+
+        .keyboard {
+            display: inline-block;
+            padding: 10px;
+            background: #222;
+            border-radius: 8px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+            flex-wrap: nowrap;
+        }
+
+        button {
+            width: 40px;
+            height: 40px;
+            margin: 2px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background: #444;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #666;
+        }
+
+        button:active {
+            background: #888;
+        }
+
+        /* Special key widths */
+        button.wide {
+            width: 60px;
+        }
+
+        button.wider {
+            width: 80px;
+        }
+
+        button.space {
+            width: 300px;
         }
     </style>
 </head>
 
 <body>
-    <canvas width="800" height="600" style="border:1px solid #000;  image-rendering: pixelated;" id="display"></canvas>
+    <canvas width="800" height="400"
+        style="border:1px solid #000;  image-rendering: pixelated; background-color: black;" id="display"></canvas>
+    <div class="keyboard">
+        <!-- Row 1: Numbers and symbols -->
+        <div class="row">
+            <button onclick="OnKey('1')">1</button>
+            <button onclick="OnKey('2')">2</button>
+            <button onclick="OnKey('3')">3</button>
+            <button onclick="OnKey('4')">4</button>
+            <button onclick="OnKey('5')">5</button>
+            <button onclick="OnKey('6')">6</button>
+            <button onclick="OnKey('7')">7</button>
+            <button onclick="OnKey('8')">8</button>
+            <button onclick="OnKey('9')">9</button>
+            <button onclick="OnKey('0')">0</button>
+            <button onclick="OnKey('-')">-</button>
+            <button onclick="OnKey('=')">=</button>
+            <button class="wide" onclick="OnKey('Backspace')">⌫</button>
+        </div>
+
+        <!-- Row 2: QWERTY -->
+        <div class="row">
+            <button class="wide" onclick="OnKey('Tab')">Tab</button>
+            <button onclick="OnKey('Q')">Q</button>
+            <button onclick="OnKey('W')">W</button>
+            <button onclick="OnKey('E')">E</button>
+            <button onclick="OnKey('R')">R</button>
+            <button onclick="OnKey('T')">T</button>
+            <button onclick="OnKey('Y')">Y</button>
+            <button onclick="OnKey('U')">U</button>
+            <button onclick="OnKey('I')">I</button>
+            <button onclick="OnKey('O')">O</button>
+            <button onclick="OnKey('P')">P</button>
+            <button onclick="OnKey('[')">[</button>
+            <button onclick="OnKey(']')">]</button>
+            <button onclick="OnKey('\\')">\\</button>
+        </div>
+
+        <!-- Row 3: ASDF -->
+        <div class="row">
+            <button class="wider" onclick="OnKey('CapsLock')">Caps</button>
+            <button onclick="OnKey('A')">A</button>
+            <button onclick="OnKey('S')">S</button>
+            <button onclick="OnKey('D')">D</button>
+            <button onclick="OnKey('F')">F</button>
+            <button onclick="OnKey('G')">G</button>
+            <button onclick="OnKey('H')">H</button>
+            <button onclick="OnKey('J')">J</button>
+            <button onclick="OnKey('K')">K</button>
+            <button onclick="OnKey('L')">L</button>
+            <button onclick="OnKey(';')">;</button>
+            <button onclick="OnKey('\'')">'</button>
+            <button class="wider" onclick="OnKey('Enter')">Enter</button>
+        </div>
+
+        <!-- Row 4: ZXCV -->
+        <div class="row">
+            <button class="wider" onclick="OnKey('Shift')">Shift</button>
+            <button onclick="OnKey('Z')">Z</button>
+            <button onclick="OnKey('X')">X</button>
+            <button onclick="OnKey('C')">C</button>
+            <button onclick="OnKey('V')">V</button>
+            <button onclick="OnKey('B')">B</button>
+            <button onclick="OnKey('N')">N</button>
+            <button onclick="OnKey('M')">M</button>
+            <button onclick="OnKey(',')">,</button>
+            <button onclick="OnKey('.')">.</button>
+            <button onclick="OnKey('/')">/</button>
+            <button class="wider" onclick="OnKey('Shift')">Shift</button>
+        </div>
+
+        <!-- Row 5: Spacebar -->
+        <div class="row">
+            <button class="space" onclick="OnKey(' ')">Space</button>
+        </div>
+    </div>
+    <div
+        style="border: 1px solid #000; background-color: #fff; width: 20%; height: 40%;right: 10px; top: 5px; position: absolute;">
+        <p id="state">Not Connected</p>
+        <input type="text" id="addr" placeholder="<ipv4>:<port>"><br>
+        <button id="connect">Connect</button><br>
+        <p id="kb">KeyBoard Keys</p>
+    </div>
     <script>
         const canvas = document.getElementById("display");
         const ctx = canvas.getContext("2d");
         const ip = "ws://192.168.1.6:8080";
         var socket = new WebSocket(ip);
-        setTimeout(() => {
-            socket.send("init");
-        }, 1000);
-        socket.addEventListener("message", (event) => {
-            data = event.data;
-            //alert(data);
-            let obj = JSON.parse(data);
-            var color = "rgba(" + obj.r + ", " + obj.g + ", " + obj.b + ", " + obj.a + ")";
-            if (obj.rect == 1) {
-                ctx.fillStyle = color;
-                ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
-            } else if (obj.dot == 1) {
-                ctx.fillStyle = color;
-                ctx.fillRect(obj.x, obj.y, 1, 1);
+        let CapsLock = false;
+        function OnKey(/** @type {string}*/ch) {
+            switch (ch) {
+                case 'Backspace':
+                    socket.send('key 8');
+                    break;
+                case 'Tab':
+                    socket.send('key 9');
+                    break;
+                case 'Enter':
+                    socket.send('key 10')
+                    break;
+                case 'CapsLock':
+                    CapsLock = !CapsLock;
+                    break;
+                case 'Shift':
+                    CapsLock = !CapsLock;
+                    break;
+                case 'Space':
+                    socket.send('key 32');
+                    break;
+                default: {
+                    let CH = CapsLock ? ch.toUpperCase() : ch.toLowerCase();
+                    socket.send(`key ${CH.charCodeAt(0)}`);
+                    document.getElementById('kb').innerHTML = "Keyboard Keys " + CH + ' ascii: ' + CH.charCodeAt(0);
+                }
+
             }
+        }
+        function reload() {
+            socket.send('init');
+            socket.addEventListener("message", (event) => {
+                data = event.data;
+                //alert(data);
+                let obj = JSON.parse(data);
+                //document.getElementById('info').innerText = JSON.stringify(obj, undefined, 2);
+                var color = "rgba(" + obj.r + ", " + obj.g + ", " + obj.b + ", " + obj.a + ")";
+                if (obj.rect == 1) {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+                } else if (obj.dot == 1) {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(obj.x, obj.y, 2, 2);
+                }
+            });
+            socket.addEventListener('open', () => {
+                alert('reloading...');
+                reload();
+                setTimeout(() => { document.getElementById('state').innerText = "Connected"; }, 500);
+
+            });
+            socket.addEventListener('close', () => {
+                document.getElementById('state').innerText = "Disconnected";
+            });
+            socket.addEventListener('error', () => {
+                document.getElementById('state').innerText = "ERROR!";
+            });
+        }
+        ////reload();
+        function Connect() {
+            alert("reloading");
+            socket.close();
+            socket = new WebSocket('ws://' + document.getElementById("addr").value);
+            reload();
+        }
+        document.getElementById('connect').addEventListener('click', Connect);
+        socket.addEventListener('open', () => {
+            reload();
         });
+
+
 
     </script>
 </body>

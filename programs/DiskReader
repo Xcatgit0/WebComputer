@@ -1,0 +1,22 @@
+loop:
+in r31 r1
+tty 0 r1
+adi r31 1
+cmp r1 r0
+je lend
+jmp loop
+lend:
+end
+;
+wtfrkey:
+in 0x3F0 r1
+cmp r1 r0
+je wtfrkey
+end
+;
+start:
+ldi r31 0x1500
+tty 1 "DiskReader~started.."
+call loop
+call wtfrkey
+hlt

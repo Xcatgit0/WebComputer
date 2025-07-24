@@ -1,0 +1,66 @@
+;const GpuMap = [
+;      addr: 0x400, name: "x" }
+;      addr: 0x401, name: "y" },    
+;      addr: 0x402, name: "width" },
+;      addr: 0x403, name: "height" },
+;      addr: 0x404, name: "rect" },
+;      addr: 0x405, name: "dot" },
+;      addr: 0x406, name: "r" },
+;      addr: 0x407, name: "g" },
+;      addr: 0x408, name: "b" },
+;      addr: 0x409, name: "a" },
+;      addr: 0x410, name: "push" },
+;      addr: 0x411, name: "add" }
+;]
+start:
+  define gX 0x400
+  define gY 0x401
+  define rect 0x404
+  define r 0x406
+  define g 0x407
+  define b 0x408
+  define a 0x409
+  define push 0x410
+  define add 0x411
+  define x r1
+  define y r2
+  define buffer1 r28
+  define buffer2 r29
+  define buffer3 r30
+  define buffer4 r31
+  Rdefine
+  ; batch 1
+  ldi x 10
+  ldi y 10  
+  out r 0xFF
+  out g 0x22
+  out b 0xFF
+  call bOne
+  ; batch 2
+  ldi x 20
+  ldi y 20
+  out r 0x22
+  out g 0xFF
+  out b 0x22
+  call bOne
+  ; push
+  out push 1
+  hlt
+  ;
+  ;
+  ;
+  ;
+  ;
+  
+sG:
+  out rect 1
+  out a 0xFF
+  out 0x402 50
+  out 0x403 50
+end
+bOne:
+  call sG
+  out gX x
+  out gY y
+  out add 1
+end

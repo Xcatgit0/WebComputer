@@ -1,0 +1,17 @@
+ldi r14 100
+call loop
+hlt
+loop:
+call waitForKey
+cmp r1 r14
+je lend
+out 0x3F1 1
+jmp loop
+lend:
+end
+
+waitForKey:
+in 0x3F0 r1
+cmp r1 r0
+je waitForKey ; back to waitForKey
+end

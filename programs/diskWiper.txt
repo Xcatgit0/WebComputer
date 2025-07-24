@@ -1,0 +1,18 @@
+start:
+tty 1 "Disk~Wiper"
+tty 1 "Press~any~key~to~continuous"
+wtfrkey:
+in 0x3F0 r1
+cmp r1 r0
+je wtfrkey
+ldi r11 0x7FFF
+ldi r9  0x1500
+loop:
+out r9 0
+adi r10 1
+adi r9 1
+cmp r10 r11
+je hlt
+jmp loop
+hlt:
+hlt

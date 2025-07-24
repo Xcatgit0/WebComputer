@@ -1,0 +1,142 @@
+hlt:
+hlt
+
+start:
+  define X r25
+  define Y r26
+  define oX r2
+  define oY r3
+  define dXP 0x03
+  define RamBase 0x9500
+  define dYP 0x04
+  define dXN 0x05
+  define dYN 0x06
+  define kb 0x3F0
+  define b r5
+  define b2 r6
+  define c r9
+  define c2 r10
+  define kbReset 0x3F1
+  define Size 12
+  define buffer1 r28
+  define buffer2 r29
+  define buffer3 r30
+  define buffer4 r31
+  define gX 0x400
+  define gY 0x401
+  define grect 0x404
+  define gr 0x406
+  define gg 0x407
+  define gb 0x408
+  define ga 0x409
+  define gpush 0x410
+  define gadd 0x411
+  Rdefine
+  call loop
+
+loop:
+  call CheckMove
+  call UpdateMove
+  call Draw
+  jmp loop
+end
+UpdateMove:
+  mov c2 buffer1
+  mov c  buffer2
+  mov b  buffer3
+  mov b2 buffer4
+  mul c2 5
+  mul c 5
+  mul b 5
+  mul b2 5
+  adi X c2
+  sdi X c
+  adi Y b2
+  sdi Y b
+  mov buffer1 c2
+  mov buffer2 c
+  mov buffer3 b
+  mov buffer4 b2
+end
+Draw:
+  out 0x402 800
+  out 0x403 600
+  out gX 0
+  out gY 0
+  out gr 0x0
+  out gg 0x0
+  out gb 0x0
+  out ga 0xFF
+  out grect 1
+  out gadd 1
+  ; OutArea
+  mov X buffer1
+  mov Y buffer2
+  sdi buffer1 5
+  sdi buffer2 5
+  out 0x402 35
+  out 0x403 35
+  out gX buffer1
+  out gY buffer2
+  out gr 0xFF
+  out gg 0x22
+  out gb 0xFF
+  out ga 0xFF
+  out grect 1
+  out gadd 1
+  ; CharactorArea
+  mov X buffer1
+  mov Y buffer2
+  out 0x402 25
+  out 0x403 25
+  out gX buffer1
+  out gY buffer2
+  out gr 0x22
+  out gg 0xFF
+  out gb 0x22
+  out ga 0xFF
+  out grect 1
+  out gadd 1
+  ; Push
+  out gpush 1
+end
+CheckMove:
+  in kb r20
+  cmp r20 119 ; w
+  je up
+  cmp r20 97  ; a
+  je left
+  cmp r20 115 ; s
+  je down
+  cmp r20 100 ; d
+  je right
+  cmp r20 122 ; z
+  je hlt
+  cmp r20 0
+  je CheckMoveEnd
+  call resetKb
+  CheckMoveEnd:
+  end
+up:
+  wise b
+  out dYP b
+  call resetKb
+  jmp CheckMoveEnd
+down:
+  wise b2
+  out dYN b2
+  call resetKb
+  jmp CheckMoveEnd
+left:
+  wise c
+  out dXN c
+  call resetKb
+  jmp CheckMoveEnd
+right:
+  wise c2
+  out dXP c2
+  call resetKb
+  jmp CheckMoveEnd
+resetKb:
+  out kbReset 1
+  end

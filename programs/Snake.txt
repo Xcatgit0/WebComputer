@@ -1,0 +1,79 @@
+start:
+  define dXP 0x03
+  define dYP 0x04
+  define dXN 0x05
+  define dYN 0x06
+  define kb 0x3F0
+  define b r5
+  define b2 r6
+  define c r9
+  define c2 r10
+  define kbReset 0x3F1
+  define Size 12
+  define buffer1 r28
+  define buffer2 r29
+  define buffer3 r30
+  define buffer4 r31
+  define gX 0x400
+  define gY 0x401
+  define grect 0x404
+  define gr 0x406
+  define gg 0x407
+  define gb 0x408
+  define ga 0x409
+  define gpush 0x410
+  define gadd 0x411
+  define RamBase 0x9500
+  define Head_X  0x9501
+  define Head_Y  0x9502
+  Rdefine
+  call loop
+loop:
+  call CheckMove
+  jmp loop
+end
+MoveHead:
+
+end
+CheckMove:
+  in kb r20
+  cmp r20 119 ; w
+  je up
+  cmp r20 97  ; a
+  je left
+  cmp r20 115 ; s
+  je down
+  cmp r20 100 ; d
+  je right
+  cmp r20 122 ; z
+  je hlt
+  cmp r20 0
+  je CheckMoveEnd
+  call resetKb
+  CheckMoveEnd:
+end
+up:
+  wise b
+  out dYN b
+  call resetKb
+  jmp CheckMoveEnd
+down:
+  wise b2
+  out dYP b2
+  call resetKb
+  jmp CheckMoveEnd
+left:
+  wise c
+  out dXN c
+  call resetKb
+  jmp CheckMoveEnd
+right:
+  wise c2
+  out dXP c2
+  call resetKb
+  jmp CheckMoveEnd
+resetKb:
+  out kbReset 1
+  end
+hlt:
+hlt

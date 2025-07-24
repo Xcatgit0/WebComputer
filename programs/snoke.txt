@@ -1,0 +1,88 @@
+; === ตั้งค่าเริ่มต้น ===
+ldi r10 100      ; ทิศทางเริ่ม d (100)
+ldi r11 10       ; posX = 10
+ldi r12 10       ; posY = 10
+jmp loop
+
+; === Main Loop ===
+loop:
+call readKey
+call move
+call draw
+jmp loop
+
+; === อ่านคีย์บอร์ด ===
+readKey:
+in 0x3F0 r1
+cmp r1 r0
+je 20            ; ถ้า r1 == 0 → ไม่มี key
+mov r1 r10
+out 0x3F1 1      ; ล้าง buffer
+end              ; กลับไป caller
+
+; === อัปเดตตำแหน่ง ===
+move:
+cmp r10 119      ; 'w'
+je moveUp
+cmp r10 97       ; 'a'
+je moveLeft
+cmp r10 115      ; 's'
+je moveDown
+cmp r10 100      ; 'd'
+je moveRight
+jmp moveEnd
+
+moveUp:
+sdi r12 1
+jmp moveEnd
+
+moveDown:
+adi r12 1
+jmp moveEnd
+
+moveLeft:
+sdi r11 1
+jmp moveEnd
+
+moveRight:
+adi r11 1
+jmp moveEnd
+
+moveEnd:
+end
+
+; === วาดหัวงู ===
+draw:
+mov r11 r1
+ldi r2 0x400
+out r2 r1        ; x
+
+mov r12 r1
+ldi r2 0x401
+out r2 r1        ; y
+
+ldi r1 1
+ldi r2 0x405
+out r2 r1        ; dot
+
+ldi r1 0
+ldi r2 0x406
+out r2 r1        ; r = 0
+
+ldi r1 255
+ldi r2 0x407
+out r2 r1        ; g = 255
+
+ldi r1 0
+ldi r2 0x408
+out r2 r1        ; b = 0
+
+ldi r1 255
+ldi r2 0x409
+out r2 r1        ; a = 255
+
+ldi r1 1
+ldi r2 0x410
+out r2 r1        ; push
+
+end

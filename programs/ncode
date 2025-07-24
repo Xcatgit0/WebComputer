@@ -1,6 +1,6 @@
 ldi r4 1000
 ldi r1 1
-jmp loop
+call loop
 hlt
 loop:
 sdi r4 1
