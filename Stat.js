@@ -19,7 +19,7 @@ function printStats() {
     let timeAll = 0;
     for (const [opcode, data] of Object.entries(stat)) {
         const avg = data.total / data.count;
-        console.log(`${opcode.padEnd(24)} | avg: ${avg.toFixed(7)} ms | max: ${data.max.toFixed(7)} ms | count: ${data.count}`);
+        console.log(`${opcode.padEnd(27)} | avg: ${avg.toFixed(7)} ms | max: ${data.max.toFixed(7)} ms | count: ${data.count}`);
         if (opcode !== "hlt") timeAll += data.max;
     }
     console.log('All Time: ' + timeAll);
