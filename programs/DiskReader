@@ -10,7 +10,7 @@ end
 ;
 wtfrkey:
 in 0x3F0 r1
-cmp r1 r0
+cmp r1 0
 je wtfrkey
 end
 ;
@@ -18,5 +18,6 @@ start:
 ldi r31 0x1500
 tty 1 "DiskReader~started.."
 call loop
+tty 1 "Press~any~key~to~Exit"
 call wtfrkey
 hlt
