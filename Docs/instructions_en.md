@@ -120,3 +120,5 @@ define max 100
 ldi r1 max
 
 Use ; for comments
+
+> © Document generated for internal use by the WebComputer system.
