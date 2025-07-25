@@ -8,7 +8,7 @@ const screen = bless.screen({
 const stat = bless.box({
     top: '0%',
     left: '0%',
-    width: '50%',
+    width: '40%',
     height: '50%',
     label: 'VM Stats',
     content: 'loading...',
@@ -31,8 +31,8 @@ const stat = bless.box({
 });
 const register = bless.box({
     top: '0%',
-    left: '50%',
-    width: '50%',
+    left: '40%',
+    width: '60%',
     height: '50%',
     label: 'Registers',
     content: 'loading...',

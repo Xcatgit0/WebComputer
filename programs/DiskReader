@@ -2,7 +2,7 @@ loop:
 in r31 r1
 tty 0 r1
 adi r31 1
-cmp r1 r0
+cmp r1 0
 je lend
 jmp loop
 lend:
@@ -17,7 +17,9 @@ end
 start:
 ldi r31 0x1500
 tty 1 "DiskReader~started.."
+tty 2
 call loop
+tty 0 0x0A
 tty 1 "Press~any~key~to~Exit"
 call wtfrkey
 hlt
