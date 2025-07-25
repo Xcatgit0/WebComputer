@@ -116,7 +116,6 @@ None yet.
 
 - Variables like `r0`, `r1`, ... `r63` are 64 general-purpose registers.
 - Instructions can accept values defined using `define`, e.g.:
-'''asm
 define max 100
 ldi r1 max
 
