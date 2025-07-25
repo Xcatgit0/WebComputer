@@ -13,7 +13,7 @@ function write(index, data) {
     Disk[index] = data;
 }
 function read(index) {
-    return Disk[index];
+    return Disk[index] ?? 0;
 }
 
 module.exports = { loadDisk, SaveDisk, write, read };
