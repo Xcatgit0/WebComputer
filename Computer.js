@@ -66,7 +66,7 @@ console.log(registers);
 var labels = [];
 var currentProgram = "main";
 function loadLabels() {
-    console.log('ff');
+    ///console.log('ff');
     for (let i = 0; i < codes.length; i++) {
         const { type, string } = validateSyntax(codes[i]);
         //console.log(string, type);
