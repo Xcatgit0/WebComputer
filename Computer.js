@@ -66,6 +66,7 @@ console.log(registers);
 var labels = [];
 var currentProgram = "main";
 function loadLabels() {
+    console.log('ff');
     for (let i = 0; i < codes.length; i++) {
         const { type, string } = validateSyntax(codes[i]);
         //console.log(string, type);
@@ -93,10 +94,10 @@ function jumpTolabel(name, call) {
 let Programs = { main: { codes: main, labels: [] } }
 console.log(labels);
 var called = [];
-function LoadProgram(name, code, labels) {
+function LoadProgram(name, code, labelss) {
     if (code) {
         Programs[name].codes = code;
-        Programs[name].labels = labels;
+        Programs[name].labels = labelss;
         return;
     }
     codes = Programs[name].codes;
@@ -155,6 +156,7 @@ let InsExecuted = 0;
 tty('clear');
 tty('print', "Starting WebComputer...");
 function execute() {
+    registers[63] = pc;
     const { type, string } = validateSyntax(ProcessedCodes[pc]);
     //let inst = {};
     if (type == "cmd") {
@@ -315,6 +317,7 @@ function execute() {
                 case '3':
                     let string = "";
                     inst.args.forEach((v, idx) => {
+                        if (v == 0) return;
                         string += String.fromCharCode(v ?? 0x3F);
                     });
                     tty('print', string);
