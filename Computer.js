@@ -1,5 +1,5 @@
 // Computer.js
-
+const path = require("path");
 const fs = require("fs");
 const Disk = require("./Disk");
 const { Gpu, stopServer } = require("./Gpu");
@@ -54,7 +54,18 @@ function replaceDefines(code) {
     });
 }
 if (!(process, argv[2])) { throw new Error('No Input file') }
-const code = fs.readFileSync(process.argv[2], 'utf8');
+let code = fs.readFileSync(process.argv[2], 'utf8');
+const basedir = path.dirname(process.argv[1]);
+tty("clear");
+tty("print", "Bounding Programs...");
+for (let i = 0; i < process.argv.length - 3; i++) {
+    let index = 3 + i;
+    let pat = path.join(basedir, process.argv[index]);
+    tty("print", pat);
+    const cod = fs.readFileSync(pat, "utf-8");
+    code += "\n" + cod;
+}
+tty("print", "\n\n");
 const main = code.split('\n');
 var Memory = new Array(1024).fill(0);
 var registers = new Array(64).fill(0);
@@ -81,7 +92,7 @@ function jumpTolabel(name, call) {
         if (label.string == name) {
             ////console.log(label);
             if (call) {
-                if (called.length != 0) {
+                if (called.length !== 0) {
                     if (called[called.length - 1].name != name) { called.push({ name: name, pc: pc, program: currentProgram }) }
                 } else if (called.length === 0) {
                     called.push({ name: name, pc: pc, program: currentProgram });
@@ -153,10 +164,10 @@ codes = Programs[currentProgram].codes;
 let ProcessedCode = replaceDefines(codes.join('\n'));
 let ProcessedCodes = ProcessedCode.split('\n');
 let InsExecuted = 0;
-tty('clear');
+//tty('clear');
 tty('print', "Starting WebComputer...");
+update(pc, flags, registers, Memory, labels, "", called, ProcessedCodes, defines);
 function execute() {
-    registers[63] = pc;
     const { type, string } = validateSyntax(ProcessedCodes[pc]);
     //let inst = {};
     if (type == "cmd") {
@@ -173,7 +184,7 @@ function execute() {
     }
     const inst = validateInst(ProcessedCodes[pc]);
     if (inst.opcode == '') {
-        pc++
+        pc++;
         return;
     }
 
@@ -395,6 +406,8 @@ function execute() {
             }
             pc = call.pc;
             break;
+        case 'load':
+            break;
         case 'hlt':
             if (interval) {
                 stop();
@@ -426,7 +439,7 @@ console.log(codes);
 var interval;
 const loop = () => {
     tty('clear');
-    interval = setInterval(() => { execute() }, process.argv[3] ?? 0.4);
+    interval = setInterval(() => { execute() }, 0.4);
 }
 Disk.loadDisk();
 setTimeout(loop, 5000);
